@@ -53,6 +53,11 @@ public class ImageController {
         Image image = imageService.getImage(imageId);
         model.addAttribute("image", image);
         model.addAttribute("tags", image.getTags());
+        
+        //Addition of new comments associated with a particular image into the model
+        if(image.getComments() != null && image.getComments().size() > 0)
+        	model.addAttribute("comments", image.getComments());
+        
         return "images/image";
     }
 
@@ -100,10 +105,12 @@ public class ImageController {
         User user = (User) session.getAttribute("loggeduser");
         model.addAttribute("image", image);
         if(image.getUser().getId() == user.getId()){
+        	//This block will represent the scenario where the logged-in user is actually the user who created the image.
         	String tags = convertTagsToString(image.getTags());
             model.addAttribute("tags", tags);
         	return "images/edit";
         } else {
+        	//This block will represent the scenario where the logged-in user is NOT the user who created the image.
         	model.addAttribute("editError", invalidUserEditError);
         	return "images/image";
         }
@@ -152,9 +159,11 @@ public class ImageController {
         Image image = imageService.getImage(imageId);
         User user = (User) session.getAttribute("loggeduser");
         if(image.getUser().getId() == user.getId()){
+        	//This block will represent the scenario where the logged-in user is actually the user who created the image.
         	imageService.deleteImage(imageId);
             return "redirect:/images";
         } else {
+        	//This block will represent the scenario where the logged-in user is NOT the user who created the image.
         	model.addAttribute("image", image);
             model.addAttribute("tags", image.getTags());
         	model.addAttribute("deleteError", invalidUserDeleteError);
